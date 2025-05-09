@@ -7,6 +7,7 @@ from graphql_jwt.decorators import login_required
 from django.core.exceptions import ValidationError
 import bcrypt
 
+# Types
 class CountryType(DjangoObjectType):
     class Meta:
         model = Country
@@ -33,6 +34,7 @@ class ContactInfoType(DjangoObjectType):
         model = ContactInfo
         fields = '__all__'
 
+# Inputs
 class UserRegistrationInput(graphene.InputObjectType):
     email = graphene.String(required=True)
     username = graphene.String(required=True)
@@ -51,6 +53,73 @@ class UserRegistrationInput(graphene.InputObjectType):
     emergency_name = graphene.String(required=True)
     emergency_phone = graphene.String(required=True)
 
+# Mutations
+class CreateTypeDocument(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+
+    type_document = graphene.Field(TypeDocumentType)
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, name):
+        try:
+            if TypeDocument.objects.filter(name_type_document=name).exists():
+                return CreateTypeDocument(
+                    success=False,
+                    message=f"Ya existe un tipo de documento con el nombre: {name}"
+                )
+
+            type_document = TypeDocument.objects.create(
+                name_type_document=name
+            )
+
+            return CreateTypeDocument(
+                type_document=type_document,
+                success=True,
+                message="Tipo de documento creado exitosamente"
+            )
+        except Exception as e:
+            return CreateTypeDocument(
+                success=False,
+                message=str(e)
+            )
+
+class CreateCountry(graphene.Mutation):
+    class Arguments:
+        country_code = graphene.String(required=True)
+        country_name = graphene.String(required=True)
+
+    country = graphene.Field(CountryType)
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, country_code, country_name):
+        try:
+            if Country.objects.filter(country_code=country_code).exists():
+                return CreateCountry(
+                    success=False,
+                    message=f"Ya existe un país con el código: {country_code}"
+                )
+
+            country = Country.objects.create(
+                country_code=country_code,
+                country_name=country_name
+            )
+
+            return CreateCountry(
+                country=country,
+                success=True,
+                message="País creado exitosamente"
+            )
+        except Exception as e:
+            return CreateCountry(
+                success=False,
+                message=str(e)
+            )
+
 class RegisterUser(graphene.Mutation):
     class Arguments:
         input = UserRegistrationInput(required=True)
@@ -68,6 +137,14 @@ class RegisterUser(graphene.Mutation):
                 raise ValidationError('El email ya está registrado')
             if User.objects.filter(username=input.username).exists():
                 raise ValidationError('El nombre de usuario ya está registrado')
+
+            # Validar si existe el tipo de documento
+            if not TypeDocument.objects.filter(id=input.document_type).exists():
+                raise ValidationError('El tipo de documento no existe')
+
+            # Validar si existe el país
+            if not Country.objects.filter(id=input.country).exists():
+                raise ValidationError('El país no existe')
 
             # Crear usuario
             user = User.objects.create_user(
@@ -113,13 +190,16 @@ class RegisterUser(graphene.Mutation):
         except Exception as e:
             return RegisterUser(
                 success=False,
-                message='Error al registrar el usuario'
+                message=str(e)
             )
 
+# Query
 class Query(graphene.ObjectType):
     me = graphene.Field(UserType)
     all_countries = graphene.List(CountryType)
     all_document_types = graphene.List(TypeDocumentType)
+    country_by_id = graphene.Field(CountryType, id=graphene.ID(required=True))
+    document_type_by_id = graphene.Field(TypeDocumentType, id=graphene.ID(required=True))
 
     @login_required
     def resolve_me(self, info):
@@ -131,7 +211,22 @@ class Query(graphene.ObjectType):
     def resolve_all_document_types(self, info):
         return TypeDocument.objects.all()
 
+    def resolve_country_by_id(self, info, id):
+        try:
+            return Country.objects.get(pk=id)
+        except Country.DoesNotExist:
+            return None
+
+    def resolve_document_type_by_id(self, info, id):
+        try:
+            return TypeDocument.objects.get(pk=id)
+        except TypeDocument.DoesNotExist:
+            return None
+
+# Mutation
 class Mutation(graphene.ObjectType):
+    create_type_document = CreateTypeDocument.Field()
+    create_country = CreateCountry.Field()
     register_user = RegisterUser.Field()
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field()
