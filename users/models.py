@@ -9,8 +9,8 @@ phone_validator = RegexValidator(
 )
 
 address_validator = RegexValidator(
-    regex=r'^[a-zA-Z0-9\s\-#*]+$',
-    message='La dirección solo puede contener letras, números, espacios y los caracteres especiales - # *'
+    regex=r'^[a-zA-Z0-9\s\-N*]+$',  # Cambiado para incluir N
+    message='La dirección solo puede contener letras, números, espacios y los caracteres - N *'
 )
 
 class Country(models.Model):
@@ -50,10 +50,12 @@ class CustomUserManager(BaseUserManager):
 class AppUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=30, unique=True)
+    password = models.CharField(max_length=128)  # Campo añadido explícitamente
     last_name = models.CharField(max_length=20)
     name = models.CharField(max_length=20)
     is_active = models.BooleanField(default=True)
     is_temporal = models.BooleanField(default=False)
+    is_militar = models.BooleanField(default=False)  # Nuevo campo
     time_create = models.DateTimeField(auto_now_add=True)
     email_verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=255, null=True, blank=True)
@@ -94,7 +96,7 @@ class ContactInfo(models.Model):
     address = models.CharField(
         max_length=60,
         validators=[address_validator],
-        help_text='Dirección (puede contener letras, números, espacios y los caracteres - # *)'
+        help_text='Dirección (puede contener letras, números, espacios y los caracteres - N *)'
     )
     city = models.CharField(max_length=50)
     phone = models.CharField(
@@ -108,7 +110,11 @@ class ContactInfo(models.Model):
         help_text='Número de celular (solo dígitos)'
     )
     emergency_name = models.CharField(max_length=100)
-    emergency_phone = models.CharField(max_length=20)
+    emergency_phone = models.CharField(
+        max_length=20,
+        validators=[phone_validator],
+        help_text='Número de teléfono de emergencia (solo dígitos)'
+    )
 
     class Meta:
         db_table = 'ContactInfo_TB'

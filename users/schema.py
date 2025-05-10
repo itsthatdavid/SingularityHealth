@@ -5,6 +5,7 @@ from .models import UserDocument, ContactInfo, Country, TypeDocument
 import graphql_jwt
 from graphql_jwt.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 import bcrypt
 
 # Types
@@ -22,7 +23,7 @@ class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
         fields = ('id', 'email', 'username', 'last_name', 'name', 'is_active', 
-                 'time_create', 'email_verified')
+                 'is_temporal', 'is_militar', 'time_create', 'email_verified')
 
 class UserDocumentType(DjangoObjectType):
     class Meta:
@@ -41,6 +42,7 @@ class UserRegistrationInput(graphene.InputObjectType):
     password = graphene.String(required=True)
     last_name = graphene.String(required=True)
     name = graphene.String(required=True)
+    is_militar = graphene.Boolean(required=True)
     document_type = graphene.ID(required=True)
     document_number = graphene.String(required=True)
     document_expedition_place = graphene.String(required=True)
@@ -131,6 +133,22 @@ class RegisterUser(graphene.Mutation):
     @staticmethod
     def mutate(root, info, input):
         try:
+            # Validaciones de campos específicos
+            address_validator = RegexValidator(
+                regex=r'^[a-zA-Z0-9\s\-N*]+$',
+                message='La dirección solo puede contener letras, números, espacios y los caracteres - N *'
+            )
+            phone_validator = RegexValidator(
+                regex=r'^\d+$',
+                message='El número de teléfono debe contener solo dígitos'
+            )
+
+            # Validar formato de dirección y teléfonos
+            address_validator(input.address)
+            phone_validator(input.phone)
+            phone_validator(input.cel_phone)
+            phone_validator(input.emergency_phone)
+
             # Validar si el usuario ya existe
             User = get_user_model()
             if User.objects.filter(email=input.email).exists():
@@ -152,7 +170,8 @@ class RegisterUser(graphene.Mutation):
                 username=input.username,
                 password=input.password,
                 last_name=input.last_name,
-                name=input.name
+                name=input.name,
+                is_militar=input.is_militar
             )
 
             # Crear documento de usuario
