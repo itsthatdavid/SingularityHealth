@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 import environ
 
@@ -63,9 +64,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'singularity.wsgi.application'
 
-# Database
+# Database configuration
 DATABASES = {
-    'default': env.db('DATABASE_URL')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME', default='singularity_db'),
+        'USER': env('DB_USER', default='singularity_user'),
+        'PASSWORD': env('DB_PASSWORD', default=''),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
+        'TEST': {
+            'NAME': 'singularity_db_test',
+        },
+    }
 }
 
 # Password validation
@@ -119,3 +130,6 @@ AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+# Test Runner
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
