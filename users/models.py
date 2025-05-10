@@ -1,6 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.core.validators import RegexValidator
 
+# Validators
+phone_validator = RegexValidator(
+    regex=r'^\d+$',
+    message='El número de teléfono debe contener solo dígitos'
+)
+
+address_validator = RegexValidator(
+    regex=r'^[a-zA-Z0-9\s\-#*]+$',
+    message='La dirección solo puede contener letras, números, espacios y los caracteres especiales - # *'
+)
 
 class Country(models.Model):
     country_code = models.CharField(max_length=4, unique=True)
@@ -12,7 +23,6 @@ class Country(models.Model):
     def __str__(self):
         return self.country_name
 
-
 class TypeDocument(models.Model):
     name_type_document = models.CharField(max_length=50)
 
@@ -21,7 +31,6 @@ class TypeDocument(models.Model):
 
     def __str__(self):
         return self.name_type_document
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -37,7 +46,6 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
-
 
 class AppUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -62,11 +70,14 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-
 class UserDocument(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.PROTECT)
-    document = models.CharField(max_length=20)
+    document = models.CharField(
+        max_length=20,
+        blank=True,  # Permite espacios en blanco (w)
+        help_text='Número de documento'
+    )
     place_expedition = models.CharField(max_length=60)
     date_expedition = models.DateField()
 
@@ -77,14 +88,25 @@ class UserDocument(models.Model):
     def __str__(self):
         return f"{self.user.email} - {self.document}"
 
-
 class ContactInfo(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
-    address = models.CharField(max_length=60)
+    address = models.CharField(
+        max_length=60,
+        validators=[address_validator],
+        help_text='Dirección (puede contener letras, números, espacios y los caracteres - # *)'
+    )
     city = models.CharField(max_length=50)
-    phone = models.CharField(max_length=20)
-    cel_phone = models.CharField(max_length=20)
+    phone = models.CharField(
+        max_length=20,
+        validators=[phone_validator],
+        help_text='Número de teléfono (solo dígitos)'
+    )
+    cel_phone = models.CharField(
+        max_length=20,
+        validators=[phone_validator],
+        help_text='Número de celular (solo dígitos)'
+    )
     emergency_name = models.CharField(max_length=100)
     emergency_phone = models.CharField(max_length=20)
 
