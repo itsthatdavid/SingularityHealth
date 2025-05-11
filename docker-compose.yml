@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - SECRET_KEY="django-insecure-h7l9y2=x3$$ol6eig9hxfz8v+g0@p2y=i-z#@2=_5#ao27p#8bn" # Turned $ into  $$ to prevent key from being misread
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - CORS_ORIGIN_WHITELIST=http://localhost:3000,http://127.0.0.1:3000
+      - DB_NAME=singularity_db
+      - DB_USER=singularity_user
+      - DB_PASSWORD=postgress
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=singularity_db
+      - POSTGRES_USER=singularity_user
+      - POSTGRES_PASSWORD=postgress
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+  static_volume:
