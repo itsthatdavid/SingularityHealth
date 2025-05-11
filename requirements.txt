@@ -6,3 +6,4 @@ django-graphql-jwt==0.4.0
 psycopg2-binary==2.9.9
 bcrypt==4.1.2
 python-dotenv==1.0.1
+cryptography==42.0.2
