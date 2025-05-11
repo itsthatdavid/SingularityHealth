@@ -76,7 +76,6 @@ function RegistrationForm() {
            return;
       }
 
-
       const response = await registerUser({
         variables: { input }
       });
@@ -105,9 +104,22 @@ function RegistrationForm() {
     title: {
       color: '#003B73',
       fontSize: '2rem',
-      marginBottom: '30px',
+      marginBottom: '20px', // Reduced margin below title
       fontWeight: 'bold',
-      textAlign: 'center', // Added for better centering
+      textAlign: 'center',
+    },
+    description: { // Added style for description area
+        marginBottom: '30px',
+        fontSize: '1rem',
+        lineHeight: '1.6',
+        color: '#555',
+    },
+    descriptionList: { // Added style for the list
+        marginTop: '10px',
+        paddingLeft: '20px',
+    },
+    descriptionListItem: { // Added style for list items
+        marginBottom: '5px',
     },
     section: {
       marginBottom: '30px',
@@ -117,7 +129,7 @@ function RegistrationForm() {
       fontSize: '1.25rem',
       marginBottom: '20px',
       fontWeight: '600',
-      borderBottom: '1px solid #E1E1E1', // Added a subtle separator
+      borderBottom: '1px solid #E1E1E1',
       paddingBottom: '10px',
     },
     inputContainer: {
@@ -186,15 +198,36 @@ function RegistrationForm() {
     buttonDisabled: {
         opacity: 0.6,
         cursor: 'not-allowed',
+    },
+    error: { // Added style for error messages
+        color: 'red',
+        textAlign: 'center',
+        marginBottom: '15px',
+    },
+    loading: { // Added style for loading message
+        textAlign: 'center',
+        marginBottom: '15px',
     }
   };
 
-  if (queryLoading) return <p style={{ textAlign: 'center' }}>Loading form data...</p>;
-  if (queryError) return <p style={{ textAlign: 'center', color: 'red' }}>Error loading form data: {queryError.message}</p>;
+  if (queryLoading) return <p style={styles.loading}>Loading form data...</p>;
+  if (queryError) return <p style={styles.error}>Error loading form data: {queryError.message}</p>;
 
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>User Registration</h1>
+
+      <div style={styles.description}>
+        <p>Welcome</p>
+        <p>Please complete this registration form to create your account. The information you provide helps us deliver better healthcare services and ensure proper documentation. All fields are required and your information will be handled with strict confidentiality in accordance with privacy regulations.</p>
+        <p>This registration process consists of three sections:</p>
+        <ul style={styles.descriptionList}>
+          <li style={styles.descriptionListItem}>Basic Information - Your personal identification details</li>
+          <li style={styles.descriptionListItem}>Document Information - Your official documentation records</li>
+          <li style={styles.descriptionListItem}>Contact Information - How we can reach you in case of need</li>
+        </ul>
+        <p>If you need assistance completing this form, please contact our support team.</p>
+      </div>
 
       <form onSubmit={handleSubmit}>
         {/* Basic User Information */}
@@ -278,7 +311,7 @@ function RegistrationForm() {
               htmlFor="militaryStatus"
               style={styles.checkboxLabel}
             >
-              Military Status
+              I'm a veteran or active military member
             </label>
           </div>
         </div>
@@ -331,6 +364,10 @@ function RegistrationForm() {
             />
           </div>
           <div style={styles.inputContainer}>
+            {/* Label for the date input */}
+            <label htmlFor="documentExpeditionDate" style={styles.checkboxLabel}>
+              When was the document issued?
+            </label>
             <input
               type="date"
               name="documentExpeditionDate"
