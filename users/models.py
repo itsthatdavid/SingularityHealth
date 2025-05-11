@@ -1,3 +1,5 @@
+import graphene
+from graphene_django import DjangoObjectType
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.validators import RegexValidator
@@ -121,3 +123,69 @@ class ContactInfo(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.city}"
+
+class RegisterUser(graphene.Mutation):
+    class Arguments:
+        # User fields
+        email = graphene.String(required=True)
+        username = graphene.String(required=True)
+        password = graphene.String(required=True)
+        last_name = graphene.String(required=True)
+        name = graphene.String(required=True)
+        is_militar = graphene.Boolean(required=True)
+        
+        # Document fields
+        type_document_id = graphene.ID(required=True)
+        document = graphene.String(required=True)
+        place_expedition = graphene.String(required=True)
+        date_expedition = graphene.String(required=True)
+        
+        # Contact fields
+        country_id = graphene.ID(required=True)
+        address = graphene.String(required=True)
+        city = graphene.String(required=True)
+        phone = graphene.String(required=True)
+        cel_phone = graphene.String(required=True)
+        emergency_name = graphene.String(required=True)
+        emergency_phone = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @classmethod
+    def mutate(cls, root, info, **kwargs):
+        try:
+            # Create user first
+            user = AppUser.objects.create_user(
+                email=kwargs.get('email'),
+                username=kwargs.get('username'),
+                password=kwargs.get('password'),
+                last_name=kwargs.get('last_name'),
+                name=kwargs.get('name'),
+                is_militar=kwargs.get('is_militar')
+            )
+
+            # Create document
+            UserDocument.objects.create(
+                user=user,
+                type_document_id=kwargs.get('type_document_id'),
+                document=kwargs.get('document'),
+                place_expedition=kwargs.get('place_expedition'),
+                date_expedition=kwargs.get('date_expedition')
+            )
+
+            # Create contact info
+            ContactInfo.objects.create(
+                user=user,
+                country_id=kwargs.get('country_id'),
+                address=kwargs.get('address'),
+                city=kwargs.get('city'),
+                phone=kwargs.get('phone'),
+                cel_phone=kwargs.get('cel_phone'),
+                emergency_name=kwargs.get('emergency_name'),
+                emergency_phone=kwargs.get('emergency_phone')
+            )
+
+            return RegisterUser(success=True, message="Usuario registrado exitosamente")
+        except Exception as e:
+            return RegisterUser(success=False, message=str(e))
