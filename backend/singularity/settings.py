@@ -120,12 +120,14 @@ GRAPHENE = {
 }
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+# For development, you might keep CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', True)
+# For more control, especially when moving towards production:
+CORS_ALLOW_ALL_ORIGINS = env.bool('CORS_ALLOW_ALL_ORIGINS', default=False) # Default to False for safety
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS_ENV', default=[
+    "http://localhost:3000", # Default if env var not set
     "http://127.0.0.1:3000",
-]
+])
 CORS_ALLOWED_METHODS = [
     'DELETE',
     'GET',
