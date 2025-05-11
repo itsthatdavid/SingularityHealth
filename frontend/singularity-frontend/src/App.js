@@ -45,9 +45,13 @@ function App() {
       <div style={styles.app}>
         <header style={styles.header}>
           <div style={styles.logo}>
-            <span style={styles.logoIcon}>★</span>
-            Singularity Health
-          </div>
+              <img 
+                src="/logo192.png" 
+                alt="Singularity Health Logo" 
+                style={styles.logoImage}
+              />
+              Singularity Health
+            </div>
         </header>
         <RegistrationForm />
       </div>
