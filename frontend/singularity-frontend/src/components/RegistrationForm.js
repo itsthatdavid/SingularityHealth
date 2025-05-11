@@ -63,25 +63,19 @@ function RegistrationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const input = {
-        email: formData.email,
-        username: formData.username,
-        password: formData.password,
-        lastName: formData.lastName,
-        name: formData.name,
-        isMilitar: formData.isMilitar,
-        documentType: formData.documentType,
-        documentNumber: formData.documentNumber,
-        documentExpeditionPlace: formData.documentExpeditionPlace,
-        documentExpeditionDate: formData.documentExpeditionDate,
-        country: formData.country,
-        address: formData.address,
-        city: formData.city,
-        phone: formData.phone,
-        celPhone: formData.celPhone,
-        emergencyName: formData.emergencyName,
-        emergencyPhone: formData.emergencyPhone
-      };
+      // Convert empty strings to null or remove if the backend expects nullable fields
+      // This is a common pattern, adjust based on your GraphQL schema's input type
+      const input = Object.fromEntries(
+        Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
+      );
+
+      // Specifically handle required fields that might be empty strings
+      // You might want more robust validation here
+      if (!input.email || !input.username || !input.password || !input.name || !input.lastName || !input.documentType || !input.documentNumber || !input.documentExpeditionPlace || !input.documentExpeditionDate || !input.country || !input.address || !input.city || !input.phone || !input.celPhone || !input.emergencyName || !input.emergencyPhone) {
+           alert('Please fill in all required fields.');
+           return;
+      }
+
 
       const response = await registerUser({
         variables: { input }
@@ -89,7 +83,8 @@ function RegistrationForm() {
 
       if (response.data.registerUser.success) {
         alert(response.data.registerUser.message);
-        // Reset form or redirect
+        // Optionally reset form:
+        // setFormData({ ...initialFormDataState }); // Define an initial state object
       } else {
         alert(response.data.registerUser.message);
       }
@@ -98,216 +93,372 @@ function RegistrationForm() {
     }
   };
 
-  if (queryLoading) return <p>Loading...</p>;
-  if (queryError) return <p>Error loading form data: {queryError.message}</p>;
-
-  const formStyle = {
-    maxWidth: '600px',
-    margin: '0 auto',
-    padding: '20px'
+  const styles = {
+    container: {
+      maxWidth: '600px', // Reduced from 800px
+      margin: '40px auto',
+      padding: '40px',
+      backgroundColor: 'white',
+      borderRadius: '15px',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    },
+    title: {
+      color: '#003B73',
+      fontSize: '2rem',
+      marginBottom: '30px',
+      fontWeight: 'bold',
+      textAlign: 'center', // Added for better centering
+    },
+    section: {
+      marginBottom: '30px',
+    },
+    sectionTitle: {
+      color: '#003B73',
+      fontSize: '1.25rem',
+      marginBottom: '20px',
+      fontWeight: '600',
+      borderBottom: '1px solid #E1E1E1', // Added a subtle separator
+      paddingBottom: '10px',
+    },
+    inputContainer: {
+      marginBottom: '15px',
+    },
+    input: {
+      width: 'calc(100% - 24px)', // Adjust for padding
+      padding: '12px', // Increased padding
+      border: '1px solid #E1E1E1',
+      borderRadius: '4px',
+      fontSize: '1rem', // Increased font size
+      backgroundColor: '#FFFFFF',
+      transition: 'border-color 0.3s ease, box-shadow 0.3s ease', // Added box-shadow transition
+      boxSizing: 'border-box', // Include padding and border in the element's total width and height
+    },
+     inputFocus: {
+      borderColor: '#0077FF',
+      boxShadow: '0 0 0 0.2rem rgba(0, 119, 255, 0.25)',
+    },
+    select: {
+      width: '100%',
+      padding: '12px', // Increased padding
+      border: '1px solid #E1E1E1',
+      borderRadius: '4px',
+      fontSize: '1rem', // Increased font size
+      backgroundColor: '#FFFFFF',
+      cursor: 'pointer',
+      transition: 'border-color 0.3s ease, box-shadow 0.3s ease', // Added box-shadow transition
+      boxSizing: 'border-box', // Include padding and border in the element's total width and height
+    },
+     selectFocus: {
+      borderColor: '#0077FF',
+      boxShadow: '0 0 0 0.2rem rgba(0, 119, 255, 0.25)',
+    },
+    checkboxContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '15px',
+    },
+    checkbox: {
+      marginRight: '8px',
+      cursor: 'pointer',
+      transform: 'scale(1.2)', // Slightly larger checkbox
+    },
+    checkboxLabel: {
+      color: '#003B73', // Changed color to match titles
+      fontSize: '1rem', // Increased font size
+      cursor: 'pointer',
+    },
+    button: {
+      width: '100%',
+      padding: '12px',
+      backgroundColor: '#0077FF',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      fontSize: '1.1rem', // Slightly larger font size
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease, opacity 0.3s ease', // Added opacity transition
+      marginTop: '20px', // Added space above the button
+    },
+    buttonHover: {
+      backgroundColor: '#0056b3', // Darker blue on hover
+    },
+    buttonDisabled: {
+        opacity: 0.6,
+        cursor: 'not-allowed',
+    }
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '8px',
-    marginBottom: '10px',
-    border: '1px solid #ccc',
-    borderRadius: '4px'
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
-  };
+  if (queryLoading) return <p style={{ textAlign: 'center' }}>Loading form data...</p>;
+  if (queryError) return <p style={{ textAlign: 'center', color: 'red' }}>Error loading form data: {queryError.message}</p>;
 
   return (
-    <form onSubmit={handleSubmit} style={formStyle}>
-      <h2>User Registration</h2>
-      
-      {/* Basic User Information */}
-      <h3>Basic Information</h3>
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        value={formData.username}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        value={formData.password}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formData.name}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="lastName"
-        placeholder="Last Name"
-        value={formData.lastName}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <label style={{ display: 'block', marginBottom: '10px' }}>
-        <input
-          type="checkbox"
-          name="isMilitar"
-          checked={formData.isMilitar}
-          onChange={handleChange}
-        />
-        {' '}Military Status
-      </label>
+    <div style={styles.container}>
+      <h1 style={styles.title}>User Registration</h1>
 
-      {/* Document Information */}
-      <h3>Document Information</h3>
-      <select
-        name="documentType"
-        value={formData.documentType}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      >
-        <option value="">Select Document Type</option>
-        {queryData?.allDocumentTypes?.map(type => (
-          <option key={type.id} value={type.id}>
-            {type.nameTypeDocument}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        name="documentNumber"
-        placeholder="Document Number"
-        value={formData.documentNumber}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="documentExpeditionPlace"
-        placeholder="Place of Expedition"
-        value={formData.documentExpeditionPlace}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="date"
-        name="documentExpeditionDate"
-        value={formData.documentExpeditionDate}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
+      <form onSubmit={handleSubmit}>
+        {/* Basic User Information */}
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>Basic Information</h2>
+          <div style={styles.inputContainer}>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={formData.name || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.checkboxContainer}>
+            <input
+              type="checkbox"
+              name="isMilitar"
+              id="militaryStatus"
+              checked={formData.isMilitar}
+              onChange={handleChange}
+              style={styles.checkbox}
+            />
+            <label
+              htmlFor="militaryStatus"
+              style={styles.checkboxLabel}
+            >
+              Military Status
+            </label>
+          </div>
+        </div>
 
-      {/* Contact Information */}
-      <h3>Contact Information</h3>
-      <select
-        name="country"
-        value={formData.country}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      >
-        <option value="">Select Country</option>
-        {queryData?.allCountries?.map(country => (
-          <option key={country.id} value={country.id}>
-            {country.countryName} ({country.countryCode})
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        name="address"
-        placeholder="Address"
-        value={formData.address}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="city"
-        placeholder="City"
-        value={formData.city}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="tel"
-        name="phone"
-        placeholder="Phone"
-        value={formData.phone}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="tel"
-        name="celPhone"
-        placeholder="Cell Phone"
-        value={formData.celPhone}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="text"
-        name="emergencyName"
-        placeholder="Emergency Contact Name"
-        value={formData.emergencyName}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
-      <input
-        type="tel"
-        name="emergencyPhone"
-        placeholder="Emergency Contact Phone"
-        value={formData.emergencyPhone}
-        onChange={handleChange}
-        style={inputStyle}
-        required
-      />
+        {/* Document Information */}
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>Document Information</h2>
+          <div style={styles.inputContainer}>
+            <select
+              name="documentType"
+              value={formData.documentType || ''}
+              onChange={handleChange}
+              style={styles.select}
+              required
+               onFocus={e => e.target.style.borderColor = styles.selectFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.select.border.split(' ')[2]}
+            >
+              <option value="">Select Document Type</option>
+              {queryData?.allDocumentTypes?.map(type => (
+                <option key={type.id} value={type.id}>
+                  {type.nameTypeDocument}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="documentNumber"
+              placeholder="Document Number"
+              value={formData.documentNumber || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="documentExpeditionPlace"
+              placeholder="Place of Expedition"
+              value={formData.documentExpeditionPlace || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="date"
+              name="documentExpeditionDate"
+              value={formData.documentExpeditionDate || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+        </div>
 
-      <button 
-        type="submit" 
-        style={buttonStyle}
-        disabled={mutationLoading}
-      >
-        {mutationLoading ? 'Registering...' : 'Register'}
-      </button>
-    </form>
+        {/* Contact Information */}
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>Contact Information</h2>
+          <div style={styles.inputContainer}>
+            <select
+              name="country"
+              value={formData.country || ''}
+              onChange={handleChange}
+              style={styles.select}
+              required
+               onFocus={e => e.target.style.borderColor = styles.selectFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.select.border.split(' ')[2]}
+            >
+              <option value="">Select Country</option>
+              {queryData?.allCountries?.map(country => (
+                <option key={country.id} value={country.id}>
+                  {country.countryName} ({country.countryCode})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="address"
+              placeholder="Address"
+              value={formData.address || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={formData.city || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Phone"
+              value={formData.phone || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="tel"
+              name="celPhone"
+              placeholder="Cell Phone"
+              value={formData.celPhone || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="text"
+              name="emergencyName"
+              placeholder="Emergency Contact Name"
+              value={formData.emergencyName || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+          <div style={styles.inputContainer}>
+            <input
+              type="tel"
+              name="emergencyPhone"
+              placeholder="Emergency Contact Phone"
+              value={formData.emergencyPhone || ''}
+              onChange={handleChange}
+              style={styles.input}
+              required
+               onFocus={e => e.target.style.borderColor = styles.inputFocus.borderColor}
+               onBlur={e => e.target.style.borderColor = styles.input.border.split(' ')[2]}
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          style={{
+            ...styles.button,
+            ...(mutationLoading ? styles.buttonDisabled : {}),
+          }}
+          disabled={mutationLoading}
+          onMouseOver={e => { if (!mutationLoading) e.target.style.backgroundColor = styles.buttonHover.backgroundColor; }}
+          onMouseOut={e => { if (!mutationLoading) e.target.style.backgroundColor = styles.button.backgroundColor; }}
+        >
+          {mutationLoading ? 'Registering...' : 'Register'}
+        </button>
+      </form>
+    </div>
   );
 }
 
