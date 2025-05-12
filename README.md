@@ -21,7 +21,7 @@ This is the recommended method for running the project as it handles dependencie
 
 1.  **Clone the Repository:**
     ```bash
-    git clone https://github.com/itsthatdavid/SingularityHealth
+    git clone [https://github.com/itsthatdavid/SingularityHealth](https://github.com/itsthatdavid/SingularityHealth)
     cd SINGULARITYHEALTH
     ```
 
@@ -142,6 +142,43 @@ This method requires you to install and manage dependencies directly on your sys
     The frontend will typically be available at `http://localhost:3000`. It will connect to the backend running at `http://localhost:8000`.
 
 ---
+
+## Testing
+
+This project includes a comprehensive suite of automated tests to ensure the reliability and correctness of the backend application. The tests cover Django models, custom manager logic, and the GraphQL API (both mutations and queries).
+
+### Test Suites Overview
+
+The tests are organized into several classes, primarily focusing on:
+
+1.  **`ModelUnitTests`**:
+    * **Purpose**: Verifies the functionality of individual Django models such as `Country`, `TypeDocument`, `AppUser`, `UserDocument`, and `ContactInfo`.
+    * **Coverage**: Includes tests for model creation, string representations (`__str__` method), and custom field validators (e.g., `phone_validator`, `address_validator` in `ContactInfo`).
+
+2.  **`UserManagerUnitTests`**:
+    * **Purpose**: Validates the custom `UserManager` for the `AppUser` model.
+    * **Coverage**: Ensures correct behavior for creating regular users (e.g., requiring an email, normalizing email case) and superusers.
+
+3.  **`GraphQLIntegrationTests`**:
+    * **Purpose**: Tests the integration and functionality of GraphQL mutations. These tests interact with the GraphQL schema to simulate client requests for data modification.
+    * **Coverage**:
+        * `createCountry`: Verifies the creation of new `Country` objects.
+        * `createTypeDocument`: Verifies the creation of new `TypeDocument` objects.
+        * `registerUser` (Complete Flow): Tests the entire user registration process, including the creation of the `AppUser`, associated `UserDocument`, and `ContactInfo`.
+        * Edge Cases: Includes tests for scenarios like attempting to register with an existing email and providing invalid data during registration (e.g., invalid email format, short password, incorrect foreign key IDs).
+
+4.  **`GraphQLAPITests`**:
+    * **Purpose**: Tests the integration and functionality of GraphQL queries. These tests interact with the GraphQL schema to simulate client requests for data retrieval.
+    * **Coverage**:
+        * `allCountries`: Verifies fetching a list of all countries.
+        * `allDocumentTypes`: Verifies fetching a list of all document types.
+        * `countryById`: Verifies fetching a specific country by its ID.
+        * `documentTypeById`: Verifies fetching a specific document type by its ID.
+
+### Running the Tests
+
+You can run the tests using Django's `manage.py` command.
+
 
 ## Key Technologies
 

@@ -64,13 +64,11 @@ function RegistrationForm() {
     e.preventDefault();
     try {
       // Convert empty strings to null or remove if the backend expects nullable fields
-      // This is a common pattern, adjust based on your GraphQL schema's input type
       const input = Object.fromEntries(
         Object.entries(formData).map(([key, value]) => [key, value === '' ? null : value])
       );
 
       // Specifically handle required fields that might be empty strings
-      // You might want more robust validation here
       if (!input.email || !input.username || !input.password || !input.name || !input.lastName || !input.documentType || !input.documentNumber || !input.documentExpeditionPlace || !input.documentExpeditionDate || !input.country || !input.address || !input.city || !input.phone || !input.celPhone || !input.emergencyName || !input.emergencyPhone) {
            alert('Please fill in all required fields.');
            return;
@@ -82,8 +80,7 @@ function RegistrationForm() {
 
       if (response.data.registerUser.success) {
         alert(response.data.registerUser.message);
-        // Optionally reset form:
-        // setFormData({ ...initialFormDataState }); // Define an initial state object
+
       } else {
         alert(response.data.registerUser.message);
       }
@@ -94,7 +91,7 @@ function RegistrationForm() {
 
   const styles = {
     container: {
-      maxWidth: '600px', // Reduced from 800px
+      maxWidth: '600px',
       margin: '40px auto',
       padding: '40px',
       backgroundColor: 'white',
@@ -104,21 +101,21 @@ function RegistrationForm() {
     title: {
       color: '#003B73',
       fontSize: '2rem',
-      marginBottom: '20px', // Reduced margin below title
+      marginBottom: '20px',
       fontWeight: 'bold',
       textAlign: 'center',
     },
-    description: { // Added style for description area
+    description: {
         marginBottom: '30px',
         fontSize: '1rem',
         lineHeight: '1.6',
         color: '#555',
     },
-    descriptionList: { // Added style for the list
+    descriptionList: {
         marginTop: '10px',
         paddingLeft: '20px',
     },
-    descriptionListItem: { // Added style for list items
+    descriptionListItem: {
         marginBottom: '5px',
     },
     section: {
@@ -136,14 +133,14 @@ function RegistrationForm() {
       marginBottom: '15px',
     },
     input: {
-      width: 'calc(100% - 24px)', // Adjust for padding
-      padding: '12px', // Increased padding
+      width: 'calc(100% - 24px)',
+      padding: '12px',
       border: '1px solid #E1E1E1',
       borderRadius: '4px',
-      fontSize: '1rem', // Increased font size
+      fontSize: '1rem',
       backgroundColor: '#FFFFFF',
-      transition: 'border-color 0.3s ease, box-shadow 0.3s ease', // Added box-shadow transition
-      boxSizing: 'border-box', // Include padding and border in the element's total width and height
+      transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+      boxSizing: 'border-box',
     },
      inputFocus: {
       borderColor: '#0077FF',
@@ -151,14 +148,14 @@ function RegistrationForm() {
     },
     select: {
       width: '100%',
-      padding: '12px', // Increased padding
+      padding: '12px',
       border: '1px solid #E1E1E1',
       borderRadius: '4px',
-      fontSize: '1rem', // Increased font size
+      fontSize: '1rem',
       backgroundColor: '#FFFFFF',
       cursor: 'pointer',
-      transition: 'border-color 0.3s ease, box-shadow 0.3s ease', // Added box-shadow transition
-      boxSizing: 'border-box', // Include padding and border in the element's total width and height
+      transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+      boxSizing: 'border-box',
     },
      selectFocus: {
       borderColor: '#0077FF',
@@ -172,11 +169,11 @@ function RegistrationForm() {
     checkbox: {
       marginRight: '8px',
       cursor: 'pointer',
-      transform: 'scale(1.2)', // Slightly larger checkbox
+      transform: 'scale(1.2)',
     },
     checkboxLabel: {
-      color: '#003B73', // Changed color to match titles
-      fontSize: '1rem', // Increased font size
+      color: '#003B73',
+      fontSize: '1rem',
       cursor: 'pointer',
     },
     button: {
@@ -186,25 +183,25 @@ function RegistrationForm() {
       color: 'white',
       border: 'none',
       borderRadius: '4px',
-      fontSize: '1.1rem', // Slightly larger font size
+      fontSize: '1.1rem',
       fontWeight: '600',
       cursor: 'pointer',
-      transition: 'background-color 0.3s ease, opacity 0.3s ease', // Added opacity transition
-      marginTop: '20px', // Added space above the button
+      transition: 'background-color 0.3s ease, opacity 0.3s ease',
+      marginTop: '20px',
     },
     buttonHover: {
-      backgroundColor: '#0056b3', // Darker blue on hover
+      backgroundColor: '#0056b3',
     },
     buttonDisabled: {
         opacity: 0.6,
         cursor: 'not-allowed',
     },
-    error: { // Added style for error messages
+    error: {
         color: 'red',
         textAlign: 'center',
         marginBottom: '15px',
     },
-    loading: { // Added style for loading message
+    loading: {
         textAlign: 'center',
         marginBottom: '15px',
     }

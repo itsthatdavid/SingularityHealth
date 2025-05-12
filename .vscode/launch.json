@@ -10,11 +10,11 @@
             "request": "launch",
             "args": [
                 "runserver",
-                "--settings=singularity.settings" // Assuming 'singularity' is your project settings folder inside 'backend'
+                "--settings=singularity.settings"
             ],
             "django": true,
             "autoStartBrowser": false,
-            "program": "${workspaceFolder}/backend/manage.py", // manage.py is in the backend folder
+            "program": "${workspaceFolder}/backend/manage.py",
             "python": "${workspaceFolder}/.venv/Scripts/python.exe", // Python from .venv at the workspace root (for Windows)
             "env": {
                 "DEBUG": "True",
@@ -22,10 +22,10 @@
                 "DATABASE_URL": "postgres://singularity_user:postgress@localhost:5432/singularity_db",
                 "ALLOWED_HOSTS": "localhost,127.0.0.1",
                 "CORS_ORIGIN_WHITELIST": "http://localhost:3000,http://127.0.0.1:3000",
-                "PYTHONPATH": "${workspaceFolder}/backend:${env:PYTHONPATH}", // Add backend to PYTHONPATH
-                "DJANGO_SETTINGS_MODULE": "singularity.settings" // Explicitly set settings module
+                "PYTHONPATH": "${workspaceFolder}/backend:${env:PYTHONPATH}",
+                "DJANGO_SETTINGS_MODULE": "singularity.settings"
             },
-            "cwd": "${workspaceFolder}/backend" // Set current working directory to backend
+            "cwd": "${workspaceFolder}/backend" 
         }
     ]
 }
